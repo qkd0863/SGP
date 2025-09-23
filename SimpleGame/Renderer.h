@@ -17,7 +17,11 @@ public:
 	void DrawSolidRect(float x, float y, float z, float size, float r, float g, float b, float a);
 	void DrawTest();
 	void DrawParticle();
+
+	void ReloadAllShaderPrograms();
 private:
+	void DeleteAllShaderPrograms();
+	void CompileAllShaderPrograms();
 	void Initialize(int windowSizeX, int windowSizeY);
 	bool ReadFile(char* filename, std::string *target);
 	void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType);

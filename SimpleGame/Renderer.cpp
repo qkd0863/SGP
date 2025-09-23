@@ -18,15 +18,13 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_WindowSizeY = windowSizeY;
 
 	//Load shaders
-	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", "./Shaders/SolidRect.fs");
-	m_TestShader = CompileShaders("./Shaders/test.vs", "./Shaders/test.fs");
-	m_ParticleShader = CompileShaders("./Shaders/Particle.vs", "./Shaders/Particle.fs");
+	CompileAllShaderPrograms();
 	
 	//Create VBOs
 	CreateVertexBufferObjects();
 
 	//Create Particles
-	CreatePartiocles(1000);
+	CreatePartiocles(10000);
 
 	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
@@ -257,7 +255,7 @@ void Renderer::CreatePartiocles(int count)
 {
 	int particleCounts = count;
 	int verticesCounts = particleCounts * 6;
-	int floatCountsPerVertex = 3 + 1 + 4; //x, y, z, value, r, g, b, a
+	int floatCountsPerVertex = 3 + 1 + 4 + 1 + 3; //x, y, z, value, r, g, b, a, sTime, vx, vy, vz
 	int totalFloatCounts = floatCountsPerVertex * verticesCounts;
 	int floatCountsPerParticle = floatCountsPerVertex * 6;
 
@@ -267,12 +265,19 @@ void Renderer::CreatePartiocles(int count)
 	for (int i = 0; i < particleCounts; i++)
 	{
 		float size = 0.01 * ((float)rand() / RAND_MAX);
-		float centerX = ((float)rand() / RAND_MAX) * 2.f - 1.f;
-		float centerY = ((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float centerX = 0;//  ((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float centerY = 0;//  ((float)rand() / RAND_MAX) * 2.f - 1.f;
 		float value = ((float)rand() / RAND_MAX);
-		float r = ((float)rand() / RAND_MAX) * 2.f - 1.f;
-		float g = ((float)rand() / RAND_MAX) * 2.f - 1.f;
-		float b = ((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float r = ((float)rand() / RAND_MAX);
+		float g = ((float)rand() / RAND_MAX);
+		float b = ((float)rand() / RAND_MAX);
+		float sTime = ((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float vx = ((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float vy = ((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float vz = 0.f;
+
+
+
 		int Index = i * floatCountsPerParticle;
 
 		temp[Index] = centerX - size; Index++;	//x
@@ -283,6 +288,10 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = g; Index++;	//g
 		temp[Index] = b; Index++;	//b
 		temp[Index] = 1; Index++;	//a
+		temp[Index] = sTime; Index++;	//sTime
+		temp[Index] = vx; Index++;	//vx
+		temp[Index] = vy; Index++;	//vy
+		temp[Index] = vz; Index++;	//vz
 
 		temp[Index] = centerX + size; Index++;
 		temp[Index] = centerY + size; Index++;
@@ -292,6 +301,10 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = g; Index++;	//g
 		temp[Index] = b; Index++;	//b
 		temp[Index] = 1; Index++;	//a
+		temp[Index] = sTime; Index++;	//sTime
+		temp[Index] = vx; Index++;	//vx
+		temp[Index] = vy; Index++;	//vy
+		temp[Index] = vz; Index++;	//vz
 
 		temp[Index] = centerX - size; Index++;
 		temp[Index] = centerY + size; Index++;
@@ -301,6 +314,10 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = g; Index++;	//g
 		temp[Index] = b; Index++;	//b
 		temp[Index] = 1; Index++;	//a
+		temp[Index] = sTime; Index++;	//sTime
+		temp[Index] = vx; Index++;	//vx
+		temp[Index] = vy; Index++;	//vy
+		temp[Index] = vz; Index++;	//vz
 
 
 		temp[Index] = centerX - size; Index++;
@@ -311,6 +328,10 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = g; Index++;	//g
 		temp[Index] = b; Index++;	//b
 		temp[Index] = 1; Index++;	//a
+		temp[Index] = sTime; Index++;	//sTime
+		temp[Index] = vx; Index++;	//vx
+		temp[Index] = vy; Index++;	//vy
+		temp[Index] = vz; Index++;	//vz
 
 		temp[Index] = centerX + size; Index++;
 		temp[Index] = centerY - size; Index++;
@@ -320,6 +341,10 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = g; Index++;	//g
 		temp[Index] = b; Index++;	//b
 		temp[Index] = 1; Index++;	//a
+		temp[Index] = sTime; Index++;	//sTime
+		temp[Index] = vx; Index++;	//vx
+		temp[Index] = vy; Index++;	//vy
+		temp[Index] = vz; Index++;	//vz
 
 		temp[Index] = centerX + size; Index++;
 		temp[Index] = centerY + size; Index++;
@@ -329,6 +354,10 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = g; Index++;	//g
 		temp[Index] = b; Index++;	//b
 		temp[Index] = 1; Index++;	//a
+		temp[Index] = sTime; Index++;	//sTime
+		temp[Index] = vx; Index++;	//vx
+		temp[Index] = vy; Index++;	//vy
+		temp[Index] = vz; Index++;	//vz
 	}
 
 
@@ -336,6 +365,8 @@ void Renderer::CreatePartiocles(int count)
 	glGenBuffers(1, &m_VBOParticles);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOParticles);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*totalFloatCounts, temp, GL_STATIC_DRAW);
+
+	delete[] temp;
 
 	m_VBOParticlesVertexCount = verticesCounts;
 }
@@ -369,6 +400,9 @@ void Renderer::DrawTest()
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOTestColor);
 	glVertexAttribPointer(aColorLoc, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
 
+
+	
+
 	glDrawArrays(GL_TRIANGLES, 0, 12);
 
 	glDisableVertexAttribArray(aPosLoc);
@@ -389,25 +423,58 @@ void Renderer::DrawParticle()
 	glUniform1f(uTimeLoc, m_Time);
 
 
+	int stride = 12;
+
 
 	int aPosLoc = glGetAttribLocation(shader, "a_Position");
 	glEnableVertexAttribArray(aPosLoc);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOParticles);
-	glVertexAttribPointer(aPosLoc, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, 0);
+	glVertexAttribPointer(aPosLoc, 3, GL_FLOAT, GL_FALSE, sizeof(float) * stride, 0);
 
 	int aValueLoc = glGetAttribLocation(shader, "a_Value");
-	glVertexAttribPointer(aValueLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (GLvoid*)(sizeof(float) * 3));
+	glVertexAttribPointer(aValueLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 3));
 	glEnableVertexAttribArray(aValueLoc);
 
 
 	int aColorLoc = glGetAttribLocation(shader, "a_Color");
 	glEnableVertexAttribArray(aColorLoc);
-	glVertexAttribPointer(aColorLoc, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (GLvoid*)(sizeof(float) * 4));
+	glVertexAttribPointer(aColorLoc, 4, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 4));
 
+	
+	int aSTimeLoc = glGetAttribLocation(shader, "a_STime");
+	glEnableVertexAttribArray(aSTimeLoc);
+	glVertexAttribPointer(aSTimeLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 8));
+	
+	int aVelLoc = glGetAttribLocation(shader, "a_Vel");
+	glEnableVertexAttribArray(aVelLoc);
+	glVertexAttribPointer(aVelLoc, 3, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 9));
+
+	
 	glDrawArrays(GL_TRIANGLES, 0, m_VBOParticlesVertexCount);
+
 
 	glDisableVertexAttribArray(aPosLoc);
 	glDisableVertexAttribArray(aColorLoc);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::ReloadAllShaderPrograms()
+{
+	DeleteAllShaderPrograms();
+	CompileAllShaderPrograms();
+}
+
+void Renderer::DeleteAllShaderPrograms()
+{
+	glDeleteShader(m_SolidRectShader);
+	glDeleteShader(m_TestShader);
+	glDeleteShader(m_ParticleShader);
+}
+
+void Renderer::CompileAllShaderPrograms()
+{
+	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", "./Shaders/SolidRect.fs");
+	m_TestShader = CompileShaders("./Shaders/test.vs", "./Shaders/test.fs");
+	m_ParticleShader = CompileShaders("./Shaders/Particle.vs", "./Shaders/Particle.fs");
 }
