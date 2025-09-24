@@ -255,7 +255,7 @@ void Renderer::CreatePartiocles(int count)
 {
 	int particleCounts = count;
 	int verticesCounts = particleCounts * 6;
-	int floatCountsPerVertex = 3 + 1 + 4 + 1 + 3; //x, y, z, value, r, g, b, a, sTime, vx, vy, vz
+	int floatCountsPerVertex = 3 + 1 + 4 + 1 + 3 + 1 + 1; //x, y, z, value, r, g, b, a, sTime, vx, vy, vz, life, mass
 	int totalFloatCounts = floatCountsPerVertex * verticesCounts;
 	int floatCountsPerParticle = floatCountsPerVertex * 6;
 
@@ -265,16 +265,19 @@ void Renderer::CreatePartiocles(int count)
 	for (int i = 0; i < particleCounts; i++)
 	{
 		float size = 0.01 * ((float)rand() / RAND_MAX);
-		float centerX = 0;//  ((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float centerX = 0;//   ((float)rand() / RAND_MAX) * 2.f - 1.f;
 		float centerY = 0;//  ((float)rand() / RAND_MAX) * 2.f - 1.f;
 		float value = ((float)rand() / RAND_MAX);
 		float r = ((float)rand() / RAND_MAX);
 		float g = ((float)rand() / RAND_MAX);
 		float b = ((float)rand() / RAND_MAX);
+		float a = 1;
 		float sTime = ((float)rand() / RAND_MAX) * 2.f - 1.f;
 		float vx = ((float)rand() / RAND_MAX) * 2.f - 1.f;
-		float vy = ((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float vy = ((float)rand() / RAND_MAX) * 3.f;
 		float vz = 0.f;
+		float life = ((float)rand() / RAND_MAX) * 1.f;
+		float mass = ((float)rand() / RAND_MAX) * 1.f + 1.f;
 
 
 
@@ -287,11 +290,13 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = r; Index++;	//r	
 		temp[Index] = g; Index++;	//g
 		temp[Index] = b; Index++;	//b
-		temp[Index] = 1; Index++;	//a
+		temp[Index] = a; Index++;	//a
 		temp[Index] = sTime; Index++;	//sTime
 		temp[Index] = vx; Index++;	//vx
 		temp[Index] = vy; Index++;	//vy
 		temp[Index] = vz; Index++;	//vz
+		temp[Index] = life; Index++;	//life
+		temp[Index] = mass; Index++;	//mass
 
 		temp[Index] = centerX + size; Index++;
 		temp[Index] = centerY + size; Index++;
@@ -300,11 +305,13 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = r; Index++;	//r	
 		temp[Index] = g; Index++;	//g
 		temp[Index] = b; Index++;	//b
-		temp[Index] = 1; Index++;	//a
+		temp[Index] = a; Index++;	//a
 		temp[Index] = sTime; Index++;	//sTime
 		temp[Index] = vx; Index++;	//vx
 		temp[Index] = vy; Index++;	//vy
 		temp[Index] = vz; Index++;	//vz
+		temp[Index] = life; Index++;	//life
+		temp[Index] = mass; Index++;	//mass
 
 		temp[Index] = centerX - size; Index++;
 		temp[Index] = centerY + size; Index++;
@@ -313,11 +320,13 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = r; Index++;	//r	
 		temp[Index] = g; Index++;	//g
 		temp[Index] = b; Index++;	//b
-		temp[Index] = 1; Index++;	//a
+		temp[Index] = a; Index++;	//a
 		temp[Index] = sTime; Index++;	//sTime
 		temp[Index] = vx; Index++;	//vx
 		temp[Index] = vy; Index++;	//vy
 		temp[Index] = vz; Index++;	//vz
+		temp[Index] = life; Index++;	//life
+		temp[Index] = mass; Index++;	//mass
 
 
 		temp[Index] = centerX - size; Index++;
@@ -327,11 +336,13 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = r; Index++;	//r	
 		temp[Index] = g; Index++;	//g
 		temp[Index] = b; Index++;	//b
-		temp[Index] = 1; Index++;	//a
+		temp[Index] = a; Index++;	//a
 		temp[Index] = sTime; Index++;	//sTime
 		temp[Index] = vx; Index++;	//vx
 		temp[Index] = vy; Index++;	//vy
 		temp[Index] = vz; Index++;	//vz
+		temp[Index] = life; Index++;	//life
+		temp[Index] = mass; Index++;	//mass
 
 		temp[Index] = centerX + size; Index++;
 		temp[Index] = centerY - size; Index++;
@@ -340,11 +351,13 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = r; Index++;	//r	
 		temp[Index] = g; Index++;	//g
 		temp[Index] = b; Index++;	//b
-		temp[Index] = 1; Index++;	//a
+		temp[Index] = a; Index++;	//a
 		temp[Index] = sTime; Index++;	//sTime
 		temp[Index] = vx; Index++;	//vx
 		temp[Index] = vy; Index++;	//vy
 		temp[Index] = vz; Index++;	//vz
+		temp[Index] = life; Index++;	//life
+		temp[Index] = mass; Index++;	//mass
 
 		temp[Index] = centerX + size; Index++;
 		temp[Index] = centerY + size; Index++;
@@ -353,11 +366,13 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = r; Index++;	//r	
 		temp[Index] = g; Index++;	//g
 		temp[Index] = b; Index++;	//b
-		temp[Index] = 1; Index++;	//a
+		temp[Index] = a; Index++;	//a
 		temp[Index] = sTime; Index++;	//sTime
 		temp[Index] = vx; Index++;	//vx
 		temp[Index] = vy; Index++;	//vy
 		temp[Index] = vz; Index++;	//vz
+		temp[Index] = life; Index++;	//life
+		temp[Index] = mass; Index++;	//mass
 	}
 
 
@@ -413,6 +428,8 @@ void Renderer::DrawTest()
 
 void Renderer::DrawParticle()
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	m_Time += 0.016;
 	//Program select
 	GLuint shader = m_ParticleShader;
@@ -422,8 +439,11 @@ void Renderer::DrawParticle()
 	int uTimeLoc = glGetUniformLocation(shader, "u_Time");
 	glUniform1f(uTimeLoc, m_Time);
 
+	int uForceLoc = glGetUniformLocation(shader, "u_Force");
+	glUniform3f(uForceLoc, 2-m_Time, 0, 0);
 
-	int stride = 12;
+	
+	int stride = 14;
 
 
 	int aPosLoc = glGetAttribLocation(shader, "a_Position");
@@ -449,6 +469,14 @@ void Renderer::DrawParticle()
 	glEnableVertexAttribArray(aVelLoc);
 	glVertexAttribPointer(aVelLoc, 3, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 9));
 
+	int aLifeLoc = glGetAttribLocation(shader, "a_Life");
+	glEnableVertexAttribArray(aLifeLoc);
+	glVertexAttribPointer(aLifeLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 12));
+
+	int aMassLoc = glGetAttribLocation(shader, "a_Mass");
+	glEnableVertexAttribArray(aMassLoc);
+	glVertexAttribPointer(aMassLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 13));
+
 	
 	glDrawArrays(GL_TRIANGLES, 0, m_VBOParticlesVertexCount);
 
@@ -457,6 +485,8 @@ void Renderer::DrawParticle()
 	glDisableVertexAttribArray(aColorLoc);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glDisable(GL_BLEND);
 }
 
 void Renderer::ReloadAllShaderPrograms()
