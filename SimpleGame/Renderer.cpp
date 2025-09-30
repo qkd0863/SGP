@@ -255,7 +255,7 @@ void Renderer::CreatePartiocles(int count)
 {
 	int particleCounts = count;
 	int verticesCounts = particleCounts * 6;
-	int floatCountsPerVertex = 3 + 1 + 4 + 1 + 3 + 1 + 1; //x, y, z, value, r, g, b, a, sTime, vx, vy, vz, life, mass
+	int floatCountsPerVertex = 3 + 1 + 4 + 1 + 3 + 1 + 1 + 1; //x, y, z, value, r, g, b, a, sTime, vx, vy, vz, life, mass, period
 	int totalFloatCounts = floatCountsPerVertex * verticesCounts;
 	int floatCountsPerParticle = floatCountsPerVertex * 6;
 
@@ -278,6 +278,7 @@ void Renderer::CreatePartiocles(int count)
 		float vz = 0.f;
 		float life = ((float)rand() / RAND_MAX) * 1.f;
 		float mass = ((float)rand() / RAND_MAX) * 1.f + 1.f;
+		float period = ((float)rand() / RAND_MAX);
 
 
 
@@ -297,6 +298,7 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = vz; Index++;	//vz
 		temp[Index] = life; Index++;	//life
 		temp[Index] = mass; Index++;	//mass
+		temp[Index] = period; Index++;	//period
 
 		temp[Index] = centerX + size; Index++;
 		temp[Index] = centerY + size; Index++;
@@ -312,6 +314,7 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = vz; Index++;	//vz
 		temp[Index] = life; Index++;	//life
 		temp[Index] = mass; Index++;	//mass
+		temp[Index] = period; Index++;	//period
 
 		temp[Index] = centerX - size; Index++;
 		temp[Index] = centerY + size; Index++;
@@ -327,6 +330,7 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = vz; Index++;	//vz
 		temp[Index] = life; Index++;	//life
 		temp[Index] = mass; Index++;	//mass
+		temp[Index] = period; Index++;	//period
 
 
 		temp[Index] = centerX - size; Index++;
@@ -343,6 +347,7 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = vz; Index++;	//vz
 		temp[Index] = life; Index++;	//life
 		temp[Index] = mass; Index++;	//mass
+		temp[Index] = period; Index++;	//period
 
 		temp[Index] = centerX + size; Index++;
 		temp[Index] = centerY - size; Index++;
@@ -358,6 +363,7 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = vz; Index++;	//vz
 		temp[Index] = life; Index++;	//life
 		temp[Index] = mass; Index++;	//mass
+		temp[Index] = period; Index++;	//period
 
 		temp[Index] = centerX + size; Index++;
 		temp[Index] = centerY + size; Index++;
@@ -373,6 +379,7 @@ void Renderer::CreatePartiocles(int count)
 		temp[Index] = vz; Index++;	//vz
 		temp[Index] = life; Index++;	//life
 		temp[Index] = mass; Index++;	//mass
+		temp[Index] = period; Index++;	//period
 	}
 
 
@@ -440,42 +447,39 @@ void Renderer::DrawParticle()
 	glUniform1f(uTimeLoc, m_Time);
 
 	int uForceLoc = glGetUniformLocation(shader, "u_Force");
-	glUniform3f(uForceLoc, 2-m_Time, 0, 0);
+	glUniform3f(uForceLoc, 0, 0, 0);
 
 	
-	int stride = 14;
+	int stride = 15;
 
 
 	int aPosLoc = glGetAttribLocation(shader, "a_Position");
+	int aValueLoc = glGetAttribLocation(shader, "a_Value");
+	int aColorLoc = glGetAttribLocation(shader, "a_Color");
+	int aSTimeLoc = glGetAttribLocation(shader, "a_STime");
+	int aVelLoc = glGetAttribLocation(shader, "a_Vel");
+	int aLifeLoc = glGetAttribLocation(shader, "a_Life");
+	int aMassLoc = glGetAttribLocation(shader, "a_Mass");
+	int aPeriodLoc = glGetAttribLocation(shader, "a_Period");
+
 	glEnableVertexAttribArray(aPosLoc);
+	glEnableVertexAttribArray(aValueLoc);
+	glEnableVertexAttribArray(aColorLoc);
+	glEnableVertexAttribArray(aSTimeLoc);
+	glEnableVertexAttribArray(aVelLoc);
+	glEnableVertexAttribArray(aLifeLoc);
+	glEnableVertexAttribArray(aMassLoc);
+	glEnableVertexAttribArray(aPeriodLoc);
+
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOParticles);
 	glVertexAttribPointer(aPosLoc, 3, GL_FLOAT, GL_FALSE, sizeof(float) * stride, 0);
-
-	int aValueLoc = glGetAttribLocation(shader, "a_Value");
 	glVertexAttribPointer(aValueLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 3));
-	glEnableVertexAttribArray(aValueLoc);
-
-
-	int aColorLoc = glGetAttribLocation(shader, "a_Color");
-	glEnableVertexAttribArray(aColorLoc);
 	glVertexAttribPointer(aColorLoc, 4, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 4));
-
-	
-	int aSTimeLoc = glGetAttribLocation(shader, "a_STime");
-	glEnableVertexAttribArray(aSTimeLoc);
 	glVertexAttribPointer(aSTimeLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 8));
-	
-	int aVelLoc = glGetAttribLocation(shader, "a_Vel");
-	glEnableVertexAttribArray(aVelLoc);
 	glVertexAttribPointer(aVelLoc, 3, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 9));
-
-	int aLifeLoc = glGetAttribLocation(shader, "a_Life");
-	glEnableVertexAttribArray(aLifeLoc);
 	glVertexAttribPointer(aLifeLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 12));
-
-	int aMassLoc = glGetAttribLocation(shader, "a_Mass");
-	glEnableVertexAttribArray(aMassLoc);
-	glVertexAttribPointer(aMassLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 13));
+	glVertexAttribPointer(aMassLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 13));	
+	glVertexAttribPointer(aPeriodLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 14));
 
 	
 	glDrawArrays(GL_TRIANGLES, 0, m_VBOParticlesVertexCount);
