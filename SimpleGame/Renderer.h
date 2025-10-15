@@ -18,6 +18,7 @@ public:
 	void DrawTest();
 	void DrawParticle();
 	void DrawGridMesh();
+	void DrawFullScreenColor(float r,float g,float b,float a);
 
 	void ReloadAllShaderPrograms();
 private:
@@ -31,6 +32,7 @@ private:
 	void GetGLPosition(float x, float y, float *newX, float *newY);
 	void CreatePartiocles(int count);
 	void CreateGridMesh(int x, int y);
+	
 
 	bool m_Initialized = false;
 	
@@ -55,5 +57,9 @@ private:
 	GLuint m_GridMeshVBO = 0;
 	GLuint m_GridMeshVertexCount = 0;
 	GLuint m_GridMeshShader = 0;
+
+
+	GLuint m_FullScreenVBO = 0;
+	GLuint m_FullScreenShader = 0;
 };
 
