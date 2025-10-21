@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Renderer.h"
 
+
 Renderer::Renderer(int windowSizeX, int windowSizeY)
 {
 	Initialize(windowSizeX, windowSizeY);
@@ -27,7 +28,22 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	CreatePartiocles(10000);
 
 
-	CreateGridMesh(100, 100);
+	CreateGridMesh(1000, 1000);
+	int index = 0;
+	for (int i = 0; i < MAX_POINTS; ++i)
+	{
+		float x = ((float)rand() / RAND_MAX) * 2 - 1;
+		float y = ((float)rand() / RAND_MAX) * 2 - 1;
+		float sTime = ((float)rand() / RAND_MAX) * 6;
+		float lTime = ((float)rand() / RAND_MAX);
+
+		m_Points[index] = x; index++;
+		m_Points[index] = y; index++;
+		m_Points[index] = sTime; index++;
+		m_Points[index] = lTime; index++;
+	}
+
+
 
 	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
@@ -411,10 +427,10 @@ void Renderer::CreatePartiocles(int count)
 void Renderer::CreateGridMesh(int x, int y)
 {
 
-	float basePosX = -0.5f;
-	float basePosY = -0.5f;
-	float targetPosX = 0.5f;
-	float targetPosY = 0.5f;
+	float basePosX = -1.0f;
+	float basePosY = -1.0f;
+	float targetPosX = 1.0f;
+	float targetPosY = 1.0f;
 
 
 
@@ -623,6 +639,10 @@ void Renderer::DrawGridMesh()
 	int uTimeLoc = glGetUniformLocation(shader, "u_Time");
 	glUniform1f(uTimeLoc, m_Time);
 
+	int uPointsLoc = glGetUniformLocation(shader, "u_Points");
+	glUniform4fv(uPointsLoc, MAX_POINTS, m_Points);
+	int uDCLoc = glGetUniformLocation(shader, "u_DropCount");
+	glUniform1f(uDCLoc, m_DC);
 
 	int attribPosition = glGetAttribLocation(m_SolidRectShader, "a_Position");
 	glEnableVertexAttribArray(attribPosition);
