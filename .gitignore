@@ -1,0 +1,15 @@
+/.vs 
+/Simplegame/x64 
+/Simplegame/x64/Debug 
+*.exe 
+*.ilk 
+*.pdb 
+*.obj 
+*.log 
+*.pch g
+*.idb 
+*.tlog 
+*.lastbuildstate 
+*.suo 
+*.db 
+
