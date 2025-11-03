@@ -45,7 +45,7 @@ void Wave()
 	
 
 	
-	//float r = 0.5 * sin(fract(u_Time));
+	float r = 0.5 * sin(fract(u_Time));
 	float d = distance(a_Position.xy, vec2(0,0));
 	//float value = clamp(r - d,0,1);
 	//value = ceil(value);

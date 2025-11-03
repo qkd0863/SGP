@@ -28,7 +28,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	CreateVertexBufferObjects();
 
 	CreateParicles(1000);
-	CreateGridMesh(10, 10);
+	CreateGridMesh(100, 100);
 
 	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
