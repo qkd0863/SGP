@@ -19,9 +19,16 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 
 	//Load shaders
 	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", "./Shaders/SolidRect.fs");
+	m_TestShader = CompileShaders("./Shaders/test.vs", "./Shaders/test.fs");
+	m_ParticleShader = CompileShaders("./Shaders/Particle.vs", "./Shaders/Particle.fs");
+	m_GridMeshShader = CompileShaders("./Shaders/GridMesh.vs", "./Shaders/GridMesh.fs");
+	m_FullScreenShader = CompileShaders("./Shaders/FullScreen.vs", "./Shaders/FullScreen.fs");
 	
 	//Create VBOs
 	CreateVertexBufferObjects();
+
+	CreateParicles(1000);
+	CreateGridMesh(10, 10);
 
 	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
@@ -46,6 +53,63 @@ void Renderer::CreateVertexBufferObjects()
 	glGenBuffers(1, &m_VBORect);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBORect);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(rect), rect, GL_STATIC_DRAW);
+
+	float center = 0.5f;
+	float size = 0.1f;
+
+	float TestPos[] =
+	{
+		(0.f - center)* size , (0.f - center)* size , 0.f, 1, //x, y, z, value
+		(1.f - center)* size , (0.f - center)* size , 0.f, 1,
+		(1.f - center)* size , (1.f - center)* size , 0.f, 1,
+		(0.f - center)* size , (0.f - center)* size , 0.f, 1,
+		(1.f - center)* size , (1.f - center)* size , 0.f, 1,
+		(0.f - center)* size , (1.f - center)* size , 0.f, 1, //Quad1
+
+		(0.f - center)* size , (0.f - center)* size , 0.f, 0.5, //x, y, z, value
+		(1.f - center)* size , (0.f - center)* size , 0.f, 0.5,
+		(1.f - center)* size , (1.f - center)* size , 0.f, 0.5,
+		(0.f - center)* size , (0.f - center)* size , 0.f, 0.5,
+		(1.f - center)* size , (1.f - center)* size , 0.f, 0.5,
+		(0.f - center)* size , (1.f - center)* size , 0.f, 0.5, //Quad2
+	};
+
+	glGenBuffers(1, &m_VBOTestPos);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOTestPos);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(TestPos), TestPos, GL_STATIC_DRAW);
+
+	float TestColor[] =
+	{
+		1.f  , 0.f  , 0.f  ,1.f,
+		0.f  , 1.f  , 0.f  ,1.f,
+		0.f  , 0.f  , 1.f  ,1.f,
+		1.f  , 0.f  , 0.f  ,1.f,
+		0.f  , 1.f  , 0.f  ,1.f,
+		0.f  , 0.f  , 1.f  ,1.f, //Quad1
+
+		1.f  , 0.f  , 0.f  ,1.f,
+		0.f  , 1.f  , 0.f  ,1.f,
+		0.f  , 0.f  , 1.f  ,1.f,
+		1.f  , 0.f  , 0.f  ,1.f,
+		0.f  , 1.f  , 0.f  ,1.f,
+		0.f  , 0.f  , 1.f  ,1.f, //Quad2
+	};
+
+	glGenBuffers(1, &m_VBOTestColor);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOTestColor);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(TestColor), TestColor, GL_STATIC_DRAW);
+
+
+	float fullRect[]
+		=
+	{
+		-1,-1,0,1,1,0,-1,1,0,
+		-1,-1,0,1,-1,0,1,1,0,
+
+	};
+	glGenBuffers(1, &m_FullScreenVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_FullScreenVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(fullRect), fullRect, GL_STATIC_DRAW);
 }
 
 void Renderer::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
@@ -189,8 +253,417 @@ void Renderer::DrawSolidRect(float x, float y, float z, float size, float r, flo
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void Renderer::DrawTest()
+{
+	m_Time += 0.016;
+	//Program select
+	GLuint shader = m_TestShader;
+	glUseProgram(shader);
+
+	
+
+	int uTimeLoc = glGetUniformLocation(shader, "u_Time");
+	glUniform1f(uTimeLoc, m_Time);
+
+
+	int aPosLoc = glGetAttribLocation(shader, "a_Position");
+	glEnableVertexAttribArray(aPosLoc);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOTestPos);
+	glVertexAttribPointer(aPosLoc, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+
+	int aColorLoc = glGetAttribLocation(shader, "a_Color");
+	glEnableVertexAttribArray(aColorLoc);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOTestColor);
+	glVertexAttribPointer(aColorLoc, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
+
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glDisableVertexAttribArray(aPosLoc);
+	glDisableVertexAttribArray(aColorLoc);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::DrawParticle()
+{
+	m_Time += 0.016;
+	//Program select
+	GLuint shader = m_ParticleShader;
+	glUseProgram(shader);
+
+	int uTimeLoc = glGetUniformLocation(shader, "u_Time");
+	glUniform1f(uTimeLoc, m_Time);
+
+	int uForceLoc = glGetUniformLocation(shader, "u_Force");
+	glUniform3f(uForceLoc, 2 - m_Time, 0, 0);
+
+	int stride = 15;
+
+	int aPosLoc = glGetAttribLocation(shader, "a_Position");
+	glEnableVertexAttribArray(aPosLoc);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOParticles);
+	glVertexAttribPointer(aPosLoc, 3, GL_FLOAT, GL_FALSE, sizeof(float) * stride, 0);
+
+	int aValueLoc = glGetAttribLocation(shader, "a_Value");
+	glEnableVertexAttribArray(aValueLoc);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOParticles);
+	glVertexAttribPointer(aValueLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 3));
+
+	int aColorLoc = glGetAttribLocation(shader, "a_Color");
+	glEnableVertexAttribArray(aColorLoc);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOParticles);
+	glVertexAttribPointer(aColorLoc, 4, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 4));
+
+	int aSTimeLoc = glGetAttribLocation(shader, "a_STime");
+	glEnableVertexAttribArray(aSTimeLoc);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOParticles);
+	glVertexAttribPointer(aSTimeLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 8));
+
+	int aVelLoc = glGetAttribLocation(shader, "a_Vel");
+	glEnableVertexAttribArray(aVelLoc);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOParticles);
+	glVertexAttribPointer(aVelLoc, 3, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 9));
+
+	int aLifeLoc = glGetAttribLocation(shader, "a_Life");
+	glEnableVertexAttribArray(aLifeLoc);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOParticles);
+	glVertexAttribPointer(aLifeLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 12));
+
+	int aMassLoc = glGetAttribLocation(shader, "a_Mass");
+	glEnableVertexAttribArray(aMassLoc);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOParticles);
+	glVertexAttribPointer(aMassLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 13));
+
+	int aPeriodLoc = glGetAttribLocation(shader, "a_Period");
+	glEnableVertexAttribArray(aPeriodLoc);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOParticles);
+	glVertexAttribPointer(aPeriodLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float) * stride, (GLvoid*)(sizeof(float) * 14));
+
+	glDrawArrays(GL_TRIANGLES, 0, m_VBOParticlesVertexCount);
+
+	glDisableVertexAttribArray(aPosLoc);
+	glDisableVertexAttribArray(aColorLoc);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::DrawGridMesh()
+{
+	m_Time += 0.016;
+	//Program select
+	int shader = m_GridMeshShader;
+	glUseProgram(shader);
+
+
+	int uTimeLoc = glGetUniformLocation(shader, "u_Time");
+	glUniform1f(uTimeLoc, m_Time);
+
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	glEnableVertexAttribArray(attribPosition);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_GridMeshVBO);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+
+	glDrawArrays(GL_TRIANGLES, 0, m_GridMeshVertexCount);
+
+	glDisableVertexAttribArray(attribPosition);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glDisable(GL_BLEND);
+}
+
+void Renderer::DrawFullScreenColor(float r, float g, float b, float a)
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	float shader = m_FullScreenShader;
+
+	//Program select
+	glUseProgram(shader);
+
+	glUniform4f(glGetUniformLocation(shader, "u_Color"), r, g, b, a);
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	glEnableVertexAttribArray(attribPosition);
+	glBindBuffer(GL_ARRAY_BUFFER, m_FullScreenVBO);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glDisableVertexAttribArray(attribPosition);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::ReloadAllShaderPrograms()
+{
+	DeleteAllShaderPrograms();
+	ComplieAllShaderPrograms();
+}
+
+void Renderer::DeleteAllShaderPrograms()
+{
+	glDeleteShader(m_SolidRectShader);
+	glDeleteShader(m_TestShader);
+	glDeleteShader(m_ParticleShader);
+	glDeleteShader(m_GridMeshShader);
+	glDeleteShader(m_FullScreenShader);
+}
+
+void Renderer::ComplieAllShaderPrograms()
+{
+	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", "./Shaders/SolidRect.fs");
+	m_TestShader = CompileShaders("./Shaders/test.vs", "./Shaders/test.fs");
+	m_ParticleShader = CompileShaders("./Shaders/Particle.vs", "./Shaders/Particle.fs");
+	m_GridMeshShader = CompileShaders("./Shaders/GridMesh.vs", "./Shaders/GridMesh.fs");
+	m_FullScreenShader = CompileShaders("./Shaders/FullScreen.vs", "./Shaders/FullScreen.fs");
+}
+
 void Renderer::GetGLPosition(float x, float y, float *newX, float *newY)
 {
 	*newX = x * 2.f / m_WindowSizeX;
 	*newY = y * 2.f / m_WindowSizeY;
+}
+
+void Renderer::CreateParicles(int count)
+{
+	int particleCounts = count;
+	int verticesCounts = particleCounts * 6;
+	int floatCountsPerVertex = 3 + 1 + 4 + 1 + 3 + 1 + 1 + 1; //x, y, z, value, r, g, b, a, sTime, vx, vy, vz, life, mass
+	int totalFloatCounts = floatCountsPerVertex * verticesCounts;
+	int floatCountsPerParticle = floatCountsPerVertex * 6;
+
+	float* temp = NULL;
+	temp = new float[totalFloatCounts];
+
+
+	for (int i = 0; i < particleCounts; i++)
+	{
+		float size = 0.01 * ((float)rand() / RAND_MAX);
+		float centerX = 0;//((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float centerY = 0;//((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float value = ((float)rand() / RAND_MAX);
+		float r = ((float)rand() / RAND_MAX);
+		float g = ((float)rand() / RAND_MAX);
+		float b = ((float)rand() / RAND_MAX);
+		float sTime = ((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float vx = ((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float vy = ((float)rand() / RAND_MAX) * 2.f - 1.f;
+		float vz = 0;
+		float life = ((float)rand() / RAND_MAX) * 1.f;;
+		float mass = ((float)rand() / RAND_MAX) * 1.f + 1.f;
+		float period = ((float)rand() / RAND_MAX);
+		int Index = i * floatCountsPerParticle;
+
+		temp[Index] = centerX - size; Index++;		//x
+		temp[Index] = centerY - size; Index++;		//y	
+		temp[Index] = 0; Index++;					//z
+		temp[Index] = value; Index++;				//value
+		temp[Index] = r; Index++;					//r	
+		temp[Index] = g; Index++;					//g
+		temp[Index] = b; Index++;					//b
+		temp[Index] = 1; Index++;					//a
+		temp[Index] = sTime; Index++;				//sTime
+		temp[Index] = vx; Index++;					//vx
+		temp[Index] = vy; Index++;					//vy
+		temp[Index] = vz; Index++;					//vz
+		temp[Index] = life; Index++;				//life
+		temp[Index] = mass; Index++;				//mass
+		temp[Index] = period; Index++;				//period
+
+		temp[Index] = centerX + size; Index++;		//x
+		temp[Index] = centerY + size; Index++;		//y	
+		temp[Index] = 0; Index++;					//z
+		temp[Index] = value; Index++;				//value
+		temp[Index] = r; Index++;					//r	
+		temp[Index] = g; Index++;					//g
+		temp[Index] = b; Index++;					//b
+		temp[Index] = 1; Index++;					//a
+		temp[Index] = sTime; Index++;				//sTime
+		temp[Index] = vx; Index++;					//vx
+		temp[Index] = vy; Index++;					//vy
+		temp[Index] = vz; Index++;					//vz
+		temp[Index] = life; Index++;				//life
+		temp[Index] = mass; Index++;				//mass
+		temp[Index] = period; Index++;				//period
+
+		temp[Index] = centerX - size; Index++;		//x
+		temp[Index] = centerY + size; Index++;		//y	
+		temp[Index] = 0; Index++;					//z
+		temp[Index] = value; Index++;				//value
+		temp[Index] = r; Index++;					//r	
+		temp[Index] = g; Index++;					//g
+		temp[Index] = b; Index++;					//b
+		temp[Index] = 1; Index++;					//a
+		temp[Index] = sTime; Index++;				//sTime
+		temp[Index] = vx; Index++;					//vx
+		temp[Index] = vy; Index++;					//vy
+		temp[Index] = vz; Index++;					//vz
+		temp[Index] = life; Index++;				//life
+		temp[Index] = mass; Index++;				//mass
+		temp[Index] = period; Index++;				//period
+
+		temp[Index] = centerX - size; Index++;		//x
+		temp[Index] = centerY - size; Index++;		//y	
+		temp[Index] = 0; Index++;					//z
+		temp[Index] = value; Index++;				//value
+		temp[Index] = r; Index++;					//r	
+		temp[Index] = g; Index++;					//g
+		temp[Index] = b; Index++;					//b
+		temp[Index] = 1; Index++;					//a
+		temp[Index] = sTime; Index++;				//sTime
+		temp[Index] = vx; Index++;					//vx
+		temp[Index] = vy; Index++;					//vy
+		temp[Index] = vz; Index++;					//vz
+		temp[Index] = life; Index++;				//life
+		temp[Index] = mass; Index++;				//mass
+		temp[Index] = period; Index++;				//period
+
+		temp[Index] = centerX + size; Index++;		//x
+		temp[Index] = centerY - size; Index++;		//y	
+		temp[Index] = 0; Index++;					//z
+		temp[Index] = value; Index++;				//value
+		temp[Index] = r; Index++;					//r	
+		temp[Index] = g; Index++;					//g
+		temp[Index] = b; Index++;					//b
+		temp[Index] = 1; Index++;					//a
+		temp[Index] = sTime; Index++;				//sTime
+		temp[Index] = vx; Index++;					//vx
+		temp[Index] = vy; Index++;					//vy
+		temp[Index] = vz; Index++;					//vz
+		temp[Index] = life; Index++;				//life
+		temp[Index] = mass; Index++;				//mass
+		temp[Index] = period; Index++;				//period
+
+		temp[Index] = centerX + size; Index++;		//x
+		temp[Index] = centerY + size; Index++;		//y	
+		temp[Index] = 0; Index++;					//z
+		temp[Index] = value; Index++;				//value
+		temp[Index] = r; Index++;					//r	
+		temp[Index] = g; Index++;					//g
+		temp[Index] = b; Index++;					//b
+		temp[Index] = 1; Index++;					//a
+		temp[Index] = sTime; Index++;				//sTime
+		temp[Index] = vx; Index++;					//vx
+		temp[Index] = vy; Index++;					//vy
+		temp[Index] = vz; Index++;					//vz
+		temp[Index] = life; Index++;				//life
+		temp[Index] = mass; Index++;				//mass
+		temp[Index] = period; Index++;				//period
+	}
+
+	glGenBuffers(1, &m_VBOParticles);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOParticles);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * totalFloatCounts, temp, GL_STATIC_DRAW);
+
+	m_VBOParticlesVertexCount = verticesCounts;
+}
+
+void Renderer::CreateGridMesh(int x, int y)
+{
+	float basePosX = -0.5f;
+	float basePosY = -0.5f;
+	float targetPosX = 0.5f;
+	float targetPosY = 0.5f;
+
+
+
+	int pointCountX = x;
+	int pointCountY = y;
+
+
+
+	float width = targetPosX - basePosX;
+	float height = targetPosY - basePosY;
+
+
+
+	float* point = new float[pointCountX * pointCountY * 2];
+	float* vertices = new float[(pointCountX - 1) * (pointCountY - 1) * 2 * 3 * 3];
+	m_GridMeshVertexCount = (pointCountX - 1) * (pointCountY - 1) * 2 * 3;
+
+
+
+	//Prepare points
+	for (int x = 0; x < pointCountX; x++)
+	{
+		for (int y = 0; y < pointCountY; y++)
+		{
+			point[(y * pointCountX + x) * 2 + 0] = basePosX + width * (x / (float)(pointCountX - 1));
+			point[(y * pointCountX + x) * 2 + 1] = basePosY + height * (y / (float)(pointCountY - 1));
+		}
+	}
+
+
+
+	//Make triangles
+
+	int vertIndex = 0;
+	for (int x = 0; x < pointCountX - 1; x++)
+	{
+		for (int y = 0; y < pointCountY - 1; y++)
+		{
+			//Triangle part 1
+			vertices[vertIndex] = point[(y * pointCountX + x) * 2 + 0];
+			vertIndex++;
+			vertices[vertIndex] = point[(y * pointCountX + x) * 2 + 1];
+			vertIndex++;
+			vertices[vertIndex] = 0.f;
+			vertIndex++;
+			vertices[vertIndex] = point[((y + 1) * pointCountX + (x + 1)) * 2 + 0];
+			vertIndex++;
+			vertices[vertIndex] = point[((y + 1) * pointCountX + (x + 1)) * 2 + 1];
+			vertIndex++;
+
+			vertices[vertIndex] = 0.f;
+
+			vertIndex++;
+
+			vertices[vertIndex] = point[((y + 1) * pointCountX + x) * 2 + 0];
+
+			vertIndex++;
+
+			vertices[vertIndex] = point[((y + 1) * pointCountX + x) * 2 + 1];
+
+			vertIndex++;
+
+			vertices[vertIndex] = 0.f;
+
+			vertIndex++;
+
+
+
+			//Triangle part 2
+			vertices[vertIndex] = point[(y * pointCountX + x) * 2 + 0];
+			vertIndex++;
+			vertices[vertIndex] = point[(y * pointCountX + x) * 2 + 1];
+			vertIndex++;
+			vertices[vertIndex] = 0.f;
+			vertIndex++;
+			vertices[vertIndex] = point[(y * pointCountX + (x + 1)) * 2 + 0];
+			vertIndex++;
+			vertices[vertIndex] = point[(y * pointCountX + (x + 1)) * 2 + 1];
+			vertIndex++;
+			vertices[vertIndex] = 0.f;
+			vertIndex++;
+			vertices[vertIndex] = point[((y + 1) * pointCountX + (x + 1)) * 2 + 0];
+			vertIndex++;
+			vertices[vertIndex] = point[((y + 1) * pointCountX + (x + 1)) * 2 + 1];
+			vertIndex++;
+			vertices[vertIndex] = 0.f;
+			vertIndex++;
+		}
+	}
+
+	glGenBuffers(1, &m_GridMeshVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_GridMeshVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (pointCountX - 1) * (pointCountY - 1) * 2 * 3 * 3, vertices, GL_STATIC_DRAW);
+
+
+	delete[] point;
+	delete[] vertices;
 }

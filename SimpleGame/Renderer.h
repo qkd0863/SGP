@@ -15,14 +15,23 @@ public:
 
 	bool IsInitialized();
 	void DrawSolidRect(float x, float y, float z, float size, float r, float g, float b, float a);
+	void DrawTest();
+	void DrawParticle();
+	void DrawGridMesh();
+	void DrawFullScreenColor(float r, float g, float b, float a);
 
+	void ReloadAllShaderPrograms();
 private:
+	void DeleteAllShaderPrograms();
+	void ComplieAllShaderPrograms();
 	void Initialize(int windowSizeX, int windowSizeY);
 	bool ReadFile(char* filename, std::string *target);
 	void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType);
 	GLuint CompileShaders(char* filenameVS, char* filenameFS);
 	void CreateVertexBufferObjects();
 	void GetGLPosition(float x, float y, float *newX, float *newY);
+	void CreateParicles(int count);
+	void CreateGridMesh(int x, int y);
 
 	bool m_Initialized = false;
 	
@@ -31,5 +40,24 @@ private:
 
 	GLuint m_VBORect = 0;
 	GLuint m_SolidRectShader = 0;
+
+
+	GLuint m_VBOTestPos = 0;
+	GLuint m_VBOTestColor = 0;
+	
+
+	GLuint m_TestShader = 0;
+	float m_Time = 0;
+
+	GLuint m_VBOParticles = 0;
+	GLuint m_VBOParticlesVertexCount = 0;
+	GLuint m_ParticleShader = 0;
+
+	GLuint m_GridMeshVBO = 0;
+	GLuint m_GridMeshVertexCount = 0;
+	GLuint m_GridMeshShader = 0;
+
+	GLuint m_FullScreenVBO = 0;
+	GLuint m_FullScreenShader = 0;
 };
 
