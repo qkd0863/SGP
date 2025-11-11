@@ -66,5 +66,7 @@ private:
 
 	float m_Points[MAX_POINTS * 4];
 	float m_DC = 10;
+
+	///adadadadadaad
 };
 
