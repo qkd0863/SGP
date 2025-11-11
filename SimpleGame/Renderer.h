@@ -20,6 +20,7 @@ public:
 	void DrawParticle();
 	void DrawGridMesh();
 	void DrawFullScreenColor(float r,float g,float b,float a);
+	void DrawFs();
 
 	void ReloadAllShaderPrograms();
 private:
@@ -65,6 +66,9 @@ private:
 
 
 	float m_Points[MAX_POINTS * 4];
-	float m_DC = 10;
+	float m_DC = 300;
+
+	GLuint m_FSVBO = 0;
+	GLuint m_FSShader = 0;
 };
 
