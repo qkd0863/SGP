@@ -137,9 +137,12 @@ void Renderer::CreateVertexBufferObjects()
 	float fullRectFS[]
 		=
 	{
-		-1,-1,0,1,1,0,-1,1,0,
-		-1,-1,0,1,-1,0,1,1,0,
-
+		-1,-1, 0, 0, 1,
+		 1, 1, 0, 1, 0,
+		-1, 1, 0, 0, 0,
+		-1,-1, 0, 0, 1,
+		 1,-1, 0, 1, 1,
+		 1, 1, 0, 1, 0
 	};
 	glGenBuffers(1, &m_FSVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_FSVBO);
@@ -709,7 +712,11 @@ void Renderer::DrawFs()
 	int attribPosition = glGetAttribLocation(shader, "a_Position");
 	glEnableVertexAttribArray(attribPosition);
 	glBindBuffer(GL_ARRAY_BUFFER, m_FSVBO);
-	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, 0);
+
+	int attribTexPos = glGetAttribLocation(shader, "a_TexPos");
+	glEnableVertexAttribArray(attribTexPos);
+	glVertexAttribPointer(attribTexPos, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (GLvoid*)(sizeof(float) * 3));
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 

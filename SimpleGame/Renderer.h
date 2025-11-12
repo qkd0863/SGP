@@ -66,15 +66,11 @@ private:
 
 
 	float m_Points[MAX_POINTS * 4];
-<<<<<<< HEAD
-	float m_DC = 10;
 
-	///adadadadadaad
-=======
+
 	float m_DC = 300;
 
 	GLuint m_FSVBO = 0;
 	GLuint m_FSShader = 0;
->>>>>>> topic1
 };
 

@@ -1,7 +1,7 @@
 #version 330
 
 in vec3 a_Position;
-
+in vec2 a_TexPos;
 
 // 0, 0 left upper  1, 1 right bottom
 // u : (a_Position.x +1) / 2
@@ -13,6 +13,7 @@ void main()
 	vec4 newPosition = vec4(a_Position, 1);
 	gl_Position = newPosition;
 
-	v_UV.x = (a_Position.x +1) / 2;
-	v_UV.y = (1 - a_Position.y) / 2;
+	//v_UV.x = (a_Position.x +1) / 2;
+	//v_UV.y = (1 - a_Position.y) / 2;
+	v_UV = a_TexPos;
 }
