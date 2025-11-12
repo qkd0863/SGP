@@ -15,5 +15,6 @@ void main()
 
 	//v_UV.x = (a_Position.x +1) / 2;
 	//v_UV.y = (1 - a_Position.y) / 2;
+
 	v_UV = a_TexPos;
 }

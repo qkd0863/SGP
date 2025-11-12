@@ -4,8 +4,10 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <cassert>
 
 #include "Dependencies\glew.h"
+#include "LoadPng.h"
 
 #define MAX_POINTS 500
 class Renderer
@@ -34,6 +36,7 @@ private:
 	void GetGLPosition(float x, float y, float *newX, float *newY);
 	void CreatePartiocles(int count);
 	void CreateGridMesh(int x, int y);
+	GLuint CreatePngTexture(char* filePath, GLuint samplingMethod);
 	
 
 	bool m_Initialized = false;
@@ -66,11 +69,12 @@ private:
 
 
 	float m_Points[MAX_POINTS * 4];
-
-
 	float m_DC = 300;
 
 	GLuint m_FSVBO = 0;
 	GLuint m_FSShader = 0;
+
+
+	GLuint m_RGBTexture = 0;
 };
 
