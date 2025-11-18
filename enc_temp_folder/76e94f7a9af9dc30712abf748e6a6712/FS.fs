@@ -14,10 +14,12 @@ const float c_PI = 3.141592;
 void Test()
 {
 	vec2 newPos=v_UV;
-	//newPos += vec2(0,0.1*sin(v_UV.x*2*c_PI+u_Time));
+	newPos += vec2(0,0.1*sin(v_UV.x*2*c_PI+u_Time));
+	
 	vec4 newColor = texture(u_RGBTexture,newPos);
 	
 	
+	FragColor = newColor;
 }
 
 void Circles()
@@ -43,31 +45,10 @@ void Flag()
 	{
 		newColor=vec4(1);
 	}
-	else{
-	discard;}
 	FragColor = newColor;
 }
-
-void Q1()
-{
-	float newX = v_UV.x;
-	float newY = 1 - abs(v_UV.y * 2 - 1);
-
-	FragColor = texture(u_RGBTexture,vec2(newX,newY));
-}
-
-void Q2()
-{
-	float newX = fract(v_UV.x*3);
-	float newY = (2 - floor(v_UV.x*3))/3 + v_UV.y/3;
-
-	FragColor = texture(u_RGBTexture,vec2(newX,newY));
-}
 void main()
-{	
-	//Test();
+{
 	//Circles();
-	//Flag();
-	//Q1();
-	Q2();
+	Flag();
 }

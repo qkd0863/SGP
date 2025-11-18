@@ -28,16 +28,16 @@ void RenderScene(void)
 	}
 
 
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	g_Renderer->DrawFullScreenColor(0, 0, 0, 0.2);
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//g_Renderer->DrawFullScreenColor(0, 0, 0, 0.2);
+	glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 	
 	// Renderer Test
 	//g_Renderer->DrawSolidRect(0, 0, 0, 4, 1, 0, 1, 1);
 	//g_Renderer->DrawTest();
 	//g_Renderer->DrawParticle();
-	g_Renderer->DrawGridMesh();
-	//g_Renderer->DrawFs();
+	//g_Renderer->DrawGridMesh();
+	g_Renderer->DrawFs();
 	
 
 	glutSwapBuffers();
