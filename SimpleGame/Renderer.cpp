@@ -45,6 +45,18 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 
 	//Load Texture
 	m_RGBTexture = CreatePngTexture("./Textures/rgb.png", GL_NEAREST);
+	m_0Texture = CreatePngTexture("./Textures/0.png", GL_NEAREST);
+	m_1Texture = CreatePngTexture("./Textures/1.png", GL_NEAREST);
+	m_2Texture = CreatePngTexture("./Textures/2.png", GL_NEAREST);
+	m_3Texture = CreatePngTexture("./Textures/3.png", GL_NEAREST);
+	m_4Texture = CreatePngTexture("./Textures/4.png", GL_NEAREST);
+	m_5Texture = CreatePngTexture("./Textures/5.png", GL_NEAREST);
+	m_6Texture = CreatePngTexture("./Textures/6.png", GL_NEAREST);
+	m_7Texture = CreatePngTexture("./Textures/7.png", GL_NEAREST);
+	m_8Texture = CreatePngTexture("./Textures/8.png", GL_NEAREST);
+	m_9Texture = CreatePngTexture("./Textures/9.png", GL_NEAREST);
+	m_NumTexture = CreatePngTexture("./Textures/numbers.png", GL_NEAREST);
+
 
 	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
@@ -731,6 +743,7 @@ void Renderer::DrawFullScreenColor(float r, float g, float b, float a)
 void Renderer::DrawFs()
 {
 	m_Time += 0.016;
+	int number = (int)floor(m_Time)%10+1;
 	float shader = m_FSShader;
 
 	//Program select
@@ -738,9 +751,43 @@ void Renderer::DrawFs()
 
 	int uTimeLoc = glGetUniformLocation(shader, "u_Time");
 	glUniform1f(uTimeLoc, m_Time);
+
+
 	int uSamplerRGB = glGetUniformLocation(shader, "u_RGBTexture");
-	glUniform1i(uSamplerRGB, 0);
+	glUniform1i(uSamplerRGB, 1);
+	int uSamplerNum = glGetUniformLocation(shader, "u_NumTexture");
+	glUniform1i(uSamplerNum, number);
+	int uSamplerTotalNum = glGetUniformLocation(shader, "u_TotalTexture");
+	glUniform1i(uSamplerTotalNum, 11);
+	int uNum = glGetUniformLocation(shader, "u_Number");
+	glUniform1i(uNum, int(m_Time));
+
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_RGBTexture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_0Texture);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, m_1Texture);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, m_2Texture);
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, m_3Texture);
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, m_4Texture);
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, m_5Texture);
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_2D, m_6Texture);
+	glActiveTexture(GL_TEXTURE8);
+	glBindTexture(GL_TEXTURE_2D, m_7Texture);
+	glActiveTexture(GL_TEXTURE9);
+	glBindTexture(GL_TEXTURE_2D, m_8Texture);
+	glActiveTexture(GL_TEXTURE10);
+	glBindTexture(GL_TEXTURE_2D, m_9Texture);
+	glActiveTexture(GL_TEXTURE11);
+	glBindTexture(GL_TEXTURE_2D, m_NumTexture);
+
+
 
 	int attribPosition = glGetAttribLocation(shader, "a_Position");
 	glEnableVertexAttribArray(attribPosition);
