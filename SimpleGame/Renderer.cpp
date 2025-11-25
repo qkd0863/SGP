@@ -43,6 +43,10 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 		m_Points[index] = lTime; index++;
 	}
 
+
+	CreateTexture();
+	CreateFBOs();
+
 	//Load Texture
 	m_RGBTexture = CreatePngTexture("./Textures/rgb.png", GL_NEAREST);
 	m_0Texture = CreatePngTexture("./Textures/0.png", GL_NEAREST);
@@ -583,6 +587,99 @@ GLuint Renderer::CreatePngTexture(char* filePath, GLuint samplingMethod)
 	return temp;
 }
 
+void Renderer::CreateFBOs()
+{
+	GLuint textureId;
+	glGenTextures(1, &m_RT0);
+	glBindTexture(GL_TEXTURE_2D, m_RT0);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+	// Gen Depth Buffer
+	GLuint depthBuffer;
+	glGenRenderbuffers(1, &depthBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 512, 512);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	// Gen VBO
+	glGenFramebuffers(1, &m_FBO0);
+
+	// Attach
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_RT0, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+
+	// Check
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE) {
+		assert(0);
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	///////////////////
+
+	glGenTextures(1, &m_RT1);
+	glBindTexture(GL_TEXTURE_2D, m_RT1);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+	// Gen Depth Buffer
+	glGenRenderbuffers(1, &depthBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 512, 512);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	// Gen VBO
+	glGenFramebuffers(1, &m_FBO1);
+
+	// Attach
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO1);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_RT1, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+
+	// Check
+	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE) {
+		assert(0);
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::CreateTexture()
+{
+	m_GridMeshVertexCount = 2 * 3;
+
+	float vertices[] =
+	{
+		-1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+		-1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+
+		-1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f, 1.0f, 1.0f,
+	};
+
+
+
+	glGenBuffers(1, &m_TexVBO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_TexVBO);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * m_GridMeshVertexCount * 5, vertices, GL_STATIC_DRAW);
+}
+
 void Renderer::DrawTest()
 {
 	m_Time += 0.016;
@@ -805,6 +902,66 @@ void Renderer::DrawFs()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void Renderer::DrawTexture(float x, float y, float sizeX, float sizeY, GLuint TexID)
+{
+	float shader = m_TexShader;
+
+	//Program select
+	glUseProgram(shader);
+
+	int uTex = glGetUniformLocation(shader, "u_TexID");
+	glUniform1i(uTex, 0);
+	int uSize = glGetUniformLocation(shader, "u_Size");
+	glUniform2f(uSize, sizeX, sizeY);
+	int uTran = glGetUniformLocation(shader, "u_Trans");
+	glUniform2f(uTran, x, y);
+
+
+
+	glActiveTexture(GL_TEXTURE0);	
+	glBindTexture(GL_TEXTURE_2D, TexID);
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	int attribTex = glGetAttribLocation(shader, "a_Tex");
+	glEnableVertexAttribArray(attribPosition);
+	glEnableVertexAttribArray(attribTex);
+	glBindBuffer(GL_ARRAY_BUFFER, m_TexVBO);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, 0);
+	glVertexAttribPointer(attribTex, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (GLvoid*)(sizeof(float) * 3));
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glDisableVertexAttribArray(attribPosition);
+	glDisableVertexAttribArray(attribTex);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::DrawDebugTexture()
+{
+	DrawTexture(-0.8f, -0.8f, 0.2f, 0.2f, m_RT0);
+	DrawTexture(-0.4f, -0.8f, 0.2f, 0.2f, m_RT1);
+}
+
+void Renderer::DrawFBOs()
+{
+	//set FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//Draw
+	DrawFs();
+
+
+	//set FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//Draw
+	DrawParticle();
+	
+
+	//Restore FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Renderer::ReloadAllShaderPrograms()
 {
 	DeleteAllShaderPrograms();
@@ -819,6 +976,7 @@ void Renderer::DeleteAllShaderPrograms()
 	glDeleteShader(m_GridMeshShader);
 	glDeleteShader(m_FullScreenShader);
 	glDeleteShader(m_FSShader);
+	glDeleteShader(m_TexShader);
 }
 
 void Renderer::CompileAllShaderPrograms()
@@ -829,4 +987,5 @@ void Renderer::CompileAllShaderPrograms()
 	m_GridMeshShader = CompileShaders("./Shaders/GridMash.vs", "./Shaders/GridMash.fs");
 	m_FullScreenShader = CompileShaders("./Shaders/FullScreen.vs", "./Shaders/FullScreen.fs");
 	m_FSShader = CompileShaders("./Shaders/FS.vs", "./Shaders/FS.fs");
+	m_TexShader = CompileShaders("./Shaders/Texture.vs", "./Shaders/Texture.fs");
 }
