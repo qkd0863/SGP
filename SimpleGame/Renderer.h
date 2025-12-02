@@ -23,9 +23,10 @@ public:
 	void DrawGridMesh();
 	void DrawFullScreenColor(float r,float g,float b,float a);
 	void DrawFs();
-	void DrawTexture(float x, float y, float sizeX, float sizeY, GLuint TexID);
+	void DrawTexture(float x, float y, float sizeX, float sizeY, GLuint TexID, GLuint TexID1, GLuint method);
 	void DrawDebugTexture();
 	void DrawFBOs();
+	void DrawBloomParticle();
 
 	void ReloadAllShaderPrograms();
 private:
@@ -91,6 +92,7 @@ private:
 	GLuint m_8Texture = 0;
 	GLuint m_9Texture = 0;
 	GLuint m_NumTexture = 0;
+	GLuint m_PaticleTexture = 0;
 
 	
 	GLuint m_TexVBO = 0;
@@ -109,5 +111,15 @@ private:
 	GLuint m_FBO2 = 0;
 	GLuint m_FBO3 = 0;
 	GLuint m_FBO4= 0;
+
+
+
+	GLuint m_HDRFBO = 0;
+	GLuint m_HDRRT0_0 = 0;
+	GLuint m_HDRRT0_1 = 0;
+
+
+	GLuint m_PingpongFBO[2] = { 0, };
+	GLuint m_PingpongTexture[2] = { 0, };
 };
 
